@@ -90,7 +90,6 @@ class GameField(object):
                 return False
 
 
-
 def main(stdscr):
     def init():
         return 'Game'
@@ -98,9 +97,11 @@ def main(stdscr):
     def not_game(state):
         responses = defaultdict(lambda: state)
         responses['Restart'], responses['Exit'] = 'Init', 'Exit'
+        action = get_user_action(stdscr)
         return responses[action]
 
     def game():
+        action = get_user_action(stdscr)
         if action == 'Restart':
             return 'Init'
         if action == 'Exit':
