@@ -11,6 +11,7 @@ from email.header import Header
 from email.utils import parseaddr, formataddr
 import smtplib
 
+
 def _format_addr(s):
     name, addr = parseaddr(s)
     return formataddr((
