@@ -41,7 +41,7 @@ class GameField(object):
     def spawn(self):
         new_element = 4 if randrange(100) > 89 else 2
         (i, j) = choice([(i, j) for i in range(self.width) for j in range(self.height) if self.field[i][j] == 0])
-        self.filed[i][j] == new_element
+        self.field[i][j] == new_element
 
     def reset(self):
         if self.score > self.highscore:
