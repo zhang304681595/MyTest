@@ -10,7 +10,7 @@ from random import randrange, choice
 from collections import defaultdict
 
 actions = ['Up', 'Left', 'Down', 'Right', 'Restart', 'Exit']
-letter_codes = [ord(ch) for ch in ['WASDRQwasdrq']]
+letter_codes = [ord(ch) for ch in 'WASDRQwasdrq']
 actions_dict = dict(zip(letter_codes, actions * 2))
 
 
@@ -30,7 +30,7 @@ def invert(field):
 
 
 class GameField(object):
-    def __init__(self, height = 4, width = 4, win = 2048):
+    def __init__(self, height=4, width=4, win=2048):
         self.height = height
         self.width = width
         self.win_value = 2048
@@ -49,10 +49,11 @@ class GameField(object):
         self.score = 0
         self.field = [[0 for i in range(self.width)] for j in range(self.height)]
         self.spawn()
+        self.spawn()
 
     def move(self, direction):
         def move_row_left(row):
-            def tighten():
+            def tighten(row):
                 new_row = [i for i in row if i != 0]
                 new_row += [0 for i in range(len(row) - len(new_row))]
                 return new_row
@@ -89,25 +90,96 @@ class GameField(object):
             else:
                 return False
 
+    def is_win(self):
+        return any(any(i >= self.win_value for i in row) for row in self.field)
+
+    def is_gameover(self):
+        return not any(self.move_is_possible(move) for move in actions)
+
+    def draw(self, screen):
+        help_string = '(W)up (S)Down (A)Left (D)Right'
+        help_string2 = '    (R)Restart (Q)Exit'
+        gameover_string = '         GAME OVER'
+        win_string = '          YOU WIN'
+
+        def cast(string):
+            screen.addstring(string + '\n')
+
+        def draw_hor_separator():
+            line = '+' + ('+------' * self.width + '+')[1:]
+            separator = defaultdict(lambda: line)
+            if not hasattr(draw_hor_separator, "counter"):
+                draw_hor_separator.counter = 0
+            cast(separator[draw_hor_separator.counter])
+            draw_hor_separator.counter += 1
+
+        def draw_row(row):
+            cast(' '.join('|{: ^5} '.format(num) if num > 0 else '|     ' for num in row) + '|')
+
+        screen.clear()
+        cast('SCORE: ' + str(self.score))
+        if 0 != self.highscore:
+            cast('HIGHSCORE: ' + str(self.highscore))
+        for row in self.field:
+            draw_hor_separator()
+            draw_row(row)
+
+        draw_hor_separator()
+        if self.is_win():
+            cast(win_string)
+        else:
+            if self.is_gameover():
+                cast(gameover_string)
+            else:
+                cast(help_string)
+        cast(help_string2)
+
+    def move_is_possible(self, direction):
+        def row_is_left_movable(row):
+            def change(i):
+                if row[i] == 0 and row[i + 1] != 0:
+                    return True
+                if row[i] != 0 and row[i + 1] == row[i]:
+                    return True
+                return False
+            return any(change(i) for i in range(len(row) - 1))
+
+        check = {}
+        check['Left'] = lambda field: any(row_is_left_movable(row) for row in field)
+        check['Right'] = lambda field: check['Left'](invert(field))
+        check['Up'] = lambda field: check['Left'](transpose(field))
+        check['Down'] = lambda field: check['Left'](transpose(field))
+
+        if direction in check:
+            return check[direction](self.field)
+        else:
+            return False
+
 
 def main(stdscr):
     def init():
+        game_field.reset()
         return 'Game'
 
     def not_game(state):
+        game_field.draw(stdscr)
+        action = get_user_action(stdscr)
         responses = defaultdict(lambda: state)
         responses['Restart'], responses['Exit'] = 'Init', 'Exit'
-        action = get_user_action(stdscr)
         return responses[action]
 
     def game():
+        game_field.draw(stdscr)
         action = get_user_action(stdscr)
         if action == 'Restart':
             return 'Init'
         if action == 'Exit':
             return 'Exit'
-
-
+        if game_field.move(action):
+            if game_field.is_win():
+                return 'Win'
+            if game_field.is_gameover():
+                return 'Gameover'
         return 'Game'
 
     state_actions = {
@@ -117,7 +189,13 @@ def main(stdscr):
         'Game': game
     }
 
+    curses.use_default_colors()
+    game_field = GameField(win=32)
+    state = 'Init'
+
     while state != 'Exit':
         state = state_actions[state]()
+
+curses.wrapper(main)
 
 
