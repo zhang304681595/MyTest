@@ -33,15 +33,10 @@ class GameField(object):
     def __init__(self, height=4, width=4, win=2048):
         self.height = height
         self.width = width
-        self.win_value = 2048
+        self.win_value = win
         self.score = 0
         self.highscore = 0
         self.reset()
-
-    def spawn(self):
-        new_element = 4 if randrange(100) > 89 else 2
-        (i, j) = choice([(i, j) for i in range(self.width) for j in range(self.height) if self.field[i][j] == 0])
-        self.field[i][j] == new_element
 
     def reset(self):
         if self.score > self.highscore:
@@ -103,7 +98,7 @@ class GameField(object):
         win_string = '          YOU WIN'
 
         def cast(string):
-            screen.addstring(string + '\n')
+            screen.addstr(string + '\n')
 
         def draw_hor_separator():
             line = '+' + ('+------' * self.width + '+')[1:]
@@ -119,7 +114,7 @@ class GameField(object):
         screen.clear()
         cast('SCORE: ' + str(self.score))
         if 0 != self.highscore:
-            cast('HIGHSCORE: ' + str(self.highscore))
+            cast('HGHSCORE: ' + str(self.highscore))
         for row in self.field:
             draw_hor_separator()
             draw_row(row)
@@ -133,6 +128,11 @@ class GameField(object):
             else:
                 cast(help_string)
         cast(help_string2)
+
+    def spawn(self):
+        new_element = 4 if randrange(100) > 89 else 2
+        (i, j) = choice([(i, j) for i in range(self.width) for j in range(self.height) if self.field[i][j] == 0])
+        self.field[i][j] = new_element
 
     def move_is_possible(self, direction):
         def row_is_left_movable(row):
