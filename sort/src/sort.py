@@ -34,6 +34,49 @@ def select_sort(arr):
         arr[min_value], arr[i] = arr[i], arr[min_value]
     return arr
 
+
+def quick_sort(arr, left, right):
+    if left >= right:
+        return arr
+    key = arr[left]
+    low = left
+    high = right
+    while left < right:
+        while left < right and arr[right] >= key:
+            right -= 1
+        arr[left] = arr[right]
+        while left < right and arr[left] <= key:
+            left += 1
+        arr[right] = arr[left]
+    arr[right] = key
+    quick_sort(arr, low, left - 1)
+    quick_sort(arr, left + 1, high)
+    return arr
+
+
+def merge(left, right):
+    i, j = 0, 0
+    result = []
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+        result += left[i:]
+        result += right[j:]
+        return result
+
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    num = len(arr) / 2
+    left = merge_sort(arr[:num])
+    right = merge_sort(arr[num:])
+    return merge(left, right)
+
 ll = [5, 6, 2, 7, 9, 3, 1, 4, 8, 10, 0]
-li = select_sort(ll)
+li = quick_sort(ll, 0, len(ll) - 1)
 print li
