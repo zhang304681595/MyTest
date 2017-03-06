@@ -3,6 +3,16 @@
 @Time    : 3/3/17 11:14 AM
 @Author  : zcj
 """
+import random
+
+
+def random_num(num):
+    arr = []
+    i = 1
+    while i < num:
+        arr.append(random.randint(0, 10000))
+        i += 1
+    return arr
 
 
 def insert_sort(array):
@@ -78,5 +88,6 @@ def merge_sort(arr):
     return merge(left, right)
 
 ll = [5, 6, 2, 7, 9, 3, 1, 4, 8, 10, 0]
-li = quick_sort(ll, 0, len(ll) - 1)
+arr = random_num(10)
+li = quick_sort(arr, 0, len(arr) - 1)
 print li
