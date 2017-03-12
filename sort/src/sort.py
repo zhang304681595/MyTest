@@ -137,7 +137,7 @@ def merge_sort(arr):
     right = merge_sort(arr[num:])
     return merge(left, right)
 
-
+pass
 ll = [5, 6, 2, 7, 9, 3, 1, 4, 8, 10, 0]
 li = merge_sort(ll)
 print li
